@@ -1,0 +1,57 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+ext {
+    JSC_DIR = "$rootDir/../../dist"
+    def jscAAR = fileTree(dir: JSC_DIR).find { it.name.endsWith(".aar") }
+    JSC_VERSION = jscAAR ? file(file(jscAAR).getParent()).getName() : ""
+
+    def i18nProp = project.findProperty("i18n")
+    JSC_NAME = Boolean.valueOf(i18nProp) ? "android-jsc-intl" : "android-jsc"
+}
+
+if (JSC_VERSION) {
+    println "\n\n\t\tUsing JavaScriptCore for Android, version ${(char) 27}[35m${JSC_NAME}:${JSC_VERSION}${(char) 27}[0m \n\n"
+
+    allprojects {
+        configurations.all {
+            resolutionStrategy {
+                eachDependency { DependencyResolveDetails details ->
+                    if (details.requested.name == 'android-jsc') {
+                        details.useTarget group: details.requested.group, name: JSC_NAME, version: JSC_VERSION
+                    }
+                }
+            }
+        }
+    }
+} else {
+    println "\n\n\t\tUsing Stock JavaScriptCore for Android \n\n"
+}
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.1.3'
+    }
+}
+
+allprojects {
+    repositories {
+        // this tells gradle where android-jsc resides
+        maven {
+            url JSC_DIR
+        }
+        maven {
+            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+            url "$rootDir/../node_modules/react-native/android"
+        }
+        google()
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+    }
+}
