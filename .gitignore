@@ -1,5 +1,5 @@
 package-lock.json
-/build
+/build/download
 /dist
 
 # Created by https://www.gitignore.io/api/node,android,reactnative,intellij+all,androidstudio,visualstudiocode
